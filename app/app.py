@@ -3,11 +3,13 @@ from PIL import Image
 import os
 from dotenv import load_dotenv
 
-# Define the roast function
-def get_roasted(img):
-    # Placeholder for roast logic
-    # You can replace this with more complex logic or API call
-    return "You call this a selfie? I've seen better reflections in a spoon!"
+from image_roaster import get_roasted
+
+# # Define the roast function
+# def get_roasted(img):
+#     # Placeholder for roast logic
+#     # You can replace this with more complex logic or API call
+#     return "You call this a selfie? I've seen better reflections in a spoon!"
 
 # Streamlit app
 def main():
