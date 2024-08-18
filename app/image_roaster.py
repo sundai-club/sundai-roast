@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
 import requests
-import tempfile
-
 
 def resize_image(image_path, max_size=(1024, 1024)):
     with Image.open(image_path) as img:
@@ -84,7 +82,7 @@ def analyze_image(client, image_path):
         "roast": roast
     }
 
-def get_roasted(image_input):
+def get_roasted(image_path):
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -92,17 +90,6 @@ def get_roasted(image_input):
         return
     
     client = OpenAI(api_key=api_key)
-    
-    # Handle both JpegImageFile and file paths
-    if isinstance(image_input, Image.Image):
-        # Save the image to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmpfile:
-            image_input.save(tmpfile.name)
-            image_path = tmpfile.name
-    elif isinstance(image_input, (str, os.PathLike)):
-        image_path = image_input
-    else:
-        raise TypeError("Unsupported image input type.")    
     
     if not os.path.exists(image_path):
         print(f"Error: File not found at {image_path}")
