@@ -43,8 +43,8 @@ def encode_image(image_input):
         raise TypeError("Unsupported image input type. Must be a file path or PIL Image object.")
 
 
-def get_image_description(image_path):
-    api_key = os.getenv("OPENAI_API_KEY")
+def get_image_description(image_path,api_key):
+    # api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY not found in environment variables")
 
@@ -82,9 +82,9 @@ def get_image_description(image_path):
 
     return response.json()['choices'][0]['message']['content']
 
-def analyze_image(client, image_path):
+def analyze_image(client, image_path,api_key):
     print(f"Describing: {image_path}\n...\n...")
-    description = get_image_description(image_path)
+    description = get_image_description(image_path,api_key)
     print(f"{description}")
     
     messages = [
@@ -106,9 +106,9 @@ def analyze_image(client, image_path):
         "roast": roast
     }
 
-def get_roasted(image_input):
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
+def get_roasted(image_input, api_key):
+    # load_dotenv()
+    # api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         print("Error: OPENAI_API_KEY not found in environment variables.")
         return
@@ -130,7 +130,7 @@ def get_roasted(image_input):
     #     print(f"Error: File not found at {image_path}")
     #     return
     
-    results = analyze_image(client, image_input)
+    results = analyze_image(client, image_input,api_key)
     
     output = {
         # "image_path": image_input,
