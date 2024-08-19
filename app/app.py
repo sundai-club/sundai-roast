@@ -31,12 +31,13 @@ def main():
     # Sidebar for user inputs
     st.sidebar.header("Settings")
     
-    api_key = st.sidebar.text_input("OpenAI API Key", type="password", value=os.environ["OPENAI_API_KEY"])
+    # api_key = st.sidebar.text_input("OpenAI API Key", type="password", value=os.environ["OPENAI_API_KEY"])
+    api_key = st.sidebar.text_input("OpenAI API Key", type="password")
     if api_key:
         if not api_key.startswith("sk-"):
             st.warning("Invalid API Key")
             return
-        os.environ["OPENAI_API_KEY"] = api_key
+        # os.environ["OPENAI_API_KEY"] = api_key
     else:
         st.warning("Please enter your OpenAI API Key")
         return
@@ -47,7 +48,7 @@ def main():
 
     # Roast button
     if uploaded_image is not None and st.button("ROAST ME"):
-        roast_text = get_roasted(img)
+        roast_text = get_roasted(img, api_key)
         st.write(f"🔥 **Roast:** {roast_text}")
 
 if __name__ == "__main__":
