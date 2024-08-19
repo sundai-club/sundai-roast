@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
 import requests
+import tempfile
+from io import BytesIO
+
+
 
 def resize_image(image_path, max_size=(1024, 1024)):
     with Image.open(image_path) as img:
@@ -14,10 +18,30 @@ def resize_image(image_path, max_size=(1024, 1024)):
         img.save(resized_path, "JPEG")
     return resized_path
 
-def encode_image(image_path):
-    resized_image_path = resize_image(image_path)
-    with open(resized_image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+# def encode_image(image_path):
+#     resized_image_path = resize_image(image_path)
+#     with open(resized_image_path, "rb") as image_file:
+#         return base64.b64encode(image_file.read()).decode('utf-8')
+
+def encode_image(image_input):
+    # Check if the input is a PIL Image object (which will be the case if it's uploaded via Streamlit)
+    if isinstance(image_input, Image.Image):
+        # Save the image to a BytesIO object
+        buffered = BytesIO()
+        image_input.save(buffered, format="JPEG")
+        # Encode the image in base64
+        return base64.b64encode(buffered.getvalue()).decode('utf-8')
+    
+    # If it's a file path, handle it as before
+    elif isinstance(image_input, (str, os.PathLike)):
+        assert os.path.exists(image_input), f"File not found at {image_input}"
+        resized_image_path = resize_image(image_input)
+        with open(resized_image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    
+    else:
+        raise TypeError("Unsupported image input type. Must be a file path or PIL Image object.")
+
 
 def get_image_description(image_path):
     api_key = os.getenv("OPENAI_API_KEY")
@@ -82,7 +106,7 @@ def analyze_image(client, image_path):
         "roast": roast
     }
 
-def get_roasted(image_path):
+def get_roasted(image_input):
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -91,24 +115,39 @@ def get_roasted(image_path):
     
     client = OpenAI(api_key=api_key)
     
-    if not os.path.exists(image_path):
-        print(f"Error: File not found at {image_path}")
-        return
+    # # Handle both JpegImageFile and file paths
+    # if isinstance(image_input, Image.Image):
+    #     # Save the image to a temporary file
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmpfile:
+    #         image_input.save(tmpfile.name)
+    #         image_path = tmpfile.name
+    # elif isinstance(image_input, (str, os.PathLike)):
+    #     image_path = image_input
+    # else:
+    #     raise TypeError("Unsupported image input type.")    
     
-    results = analyze_image(client, image_path)
+    # if not os.path.exists(image_path):
+    #     print(f"Error: File not found at {image_path}")
+    #     return
+    
+    results = analyze_image(client, image_input)
     
     output = {
-        "image_path": image_path,
+        # "image_path": image_input,
         "results": results
     }
     
     # Save output to JSON file
+    if isinstance(image_input, Image.Image):
+        image_path = "image.jpg"
     output_file = os.path.splitext(image_path)[0] + ".json"
     with open(output_file, "w") as f:
         json.dump(output, f, indent=2)
     
     print(f"Analysis complete. Results saved to {output_file}")
     print(json.dumps(output, indent=2))
+    
+    print(results["roast"])
     
     return output["results"]["roast"]
 
