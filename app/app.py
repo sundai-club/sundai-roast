@@ -31,7 +31,7 @@ def main():
     # Sidebar for user inputs
     st.sidebar.header("Settings")
     
-    api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+    api_key = st.sidebar.text_input("OpenAI API Key", type="password", value=os.environ["OPENAI_API_KEY"])
     if api_key:
         if not api_key.startswith("sk-"):
             st.warning("Invalid API Key")
